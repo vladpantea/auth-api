@@ -1,0 +1,52 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-api
+  labels:
+    app: auth-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-api
+  template:
+    metadata:
+      labels:
+        app: auth-api
+    spec:
+      containers:
+      - name: auth-api
+        image: vladpantea/auth.api:v1.0.0
+        ports:
+        - containerPort: 9098
+        env:
+        # Define the environment variable
+        - name: ASPNETCORE_JWTSettings__Audience
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: auth-configmap
+              # Specify the key associated with the value
+              key: audience
+        - name: ASPNETCORE_JWTSettings__Issuer
+          valueFrom:
+            configMapKeyRef:
+              # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+              name: auth-configmap
+              # Specify the key associated with the value
+              key: issuer
+        - name: ASPNETCORE_JWTSettings__Secret
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: secret
+        - name: ASPNETCORE_AuthSettings__Username
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: username
+        - name: ASPNETCORE_AuthSettings__Password
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: password
